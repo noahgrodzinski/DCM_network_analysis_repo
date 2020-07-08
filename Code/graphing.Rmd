@@ -1,0 +1,92 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+#this imports relevant libraries, and creates an igraph object using the pre-processed author and links data from paper_analyser.py
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tibble)
+library(plyr)
+library(igraph)
+nodes <- read_csv("Python_authors_prolific.csv")
+reduced_links <- read_csv("Python_links_prolific.csv") 
+
+reduced_links <- distinct(reduced_links) %>%
+  filter(from != to)
+net_of_scientists <- graph_from_data_frame(d=reduced_links, vertices=nodes, directed=F)
+library(tidygraph)
+library(ggraph)
+library(visNetwork)
+
+nodes
+reduced_links
+```
+
+
+```{r}
+#adds author information to each author, as well as adding data to a VisNetwork object to allow interactive graph visualisation
+viz_Nodes <- nodes
+viz_Edges <- reduced_links
+
+
+data <- toVisNetworkData(net_of_scientists)
+
+
+names(viz_Edges)[1] <- "from"
+names(viz_Edges)[2] <- "to"
+names(viz_Nodes)[1] <- "ID"
+test_nodes = data$nodes
+test_edges = data$edges
+
+test_nodes$label <- viz_Nodes$name_of_author
+test_nodes$value <- (viz_Nodes$paper_freq)/100
+test_nodes$prop_DCM <- (viz_Nodes$paper_freq)/100
+test_nodes$group <- (viz_Nodes$country)
+
+
+test_nodes$connections <- degree(net_of_scientists, mode="all")
+test_nodes$connections_per_paper <- degree(net_of_scientists, mode="all")/viz_Nodes$paper_freq
+
+test_nodes$second_order_connections <- ego_size(net_of_scientists, mode="all", order=2)
+test_nodes$second_order_connections_per_paper <- ego_size(net_of_scientists, mode="all", order=2)/viz_Nodes$paper_freq
+
+
+test_nodes$third_order_connections <- ego_size(net_of_scientists, mode="all", order=3)
+test_nodes$third_order_connections_per_paper <- ego_size(net_of_scientists, mode="all", order=3)/viz_Nodes$paper_freq
+```
+
+
+```{r}
+#create a graph visualisation with information passed in the block above
+visNetwork(nodes = test_nodes, edges = test_edges, main = "Network Visualisation for DCM Research",
+           shape=circle(radius = viz_Nodes$paper),
+           ) %>%
+  visPhysics(stabilization = FALSE, solver="repulsion") %>%
+  visEdges(smooth = FALSE) %>%
+  visOptions(highlightNearest = list(enabled=TRUE, degree=0)) %>%
+  visIgraphLayout() %>%
+  visLegend(main='Country', ncol=2, width=0.2, stepX = 150)
+  
+```
+```{r}
+#save the (interesting) new data. Other data used for network visualisation (such as label, which is identical to name, and is only passsed so that the labels appear in the interactive network graph) is removed before saving.
+
+test_nodes_stats  <- test_nodes %>%
+  select(-c("label", "prop_DCM", "value", "group", ))
+
+
+test_nodes_stats$betweenness = betweenness(net_of_scientists, directed=FALSE)/100
+test_nodes_stats$closeness = closeness(net_of_scientists, normalized = TRUE)*1000
+
+test_nodes_stats <- test_nodes_stats %>%
+  filter(connections>1)
+
+test_nodes_stats
+
+write.csv(test_nodes_stats, "author_stats.csv")
+```
