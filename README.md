@@ -8,3 +8,8 @@ The code for, and TensorFlow network contained in, the paper "Can Co-Authorship 
 - "network_testing.py" contains the scipt used to generate the diagrams in the "network sensitivities" section. A dedicated script was made for this as I couldn't find a tool that already existed to perform such visualisation, so I had to make one, and I didn't want to extend TF_learning.py any more
 
 A brief commentary is present in all these scripts to explain the overall structure and functions of each section, but precise explainations are not present. Inefficiencies are likely to be present in the code. For any queries, or help using the code for simmilar projects, email noahgrodzinski@gmail.com 
+
+# Changes made by me
+
+- [ ] paper_extractor.py
+- [ ] new network structure

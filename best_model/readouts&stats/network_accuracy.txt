@@ -1,0 +1,1 @@
+network has Spearman's Rank correlation coefficient of 0.9814857635349024, corresponding to a probability of 1.243869080187176e-78the network has a median error of 0.5556545257568359, a mean error of 1.134220255077432, and a standard deviation of error of 1.6421113194264225the median relative error was 5.662841796875
