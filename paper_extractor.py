@@ -8,7 +8,9 @@ search_term = "degenerative cervical myelopathy"
 retmax = 100
 
 # Define the search URL
-search_url = f"{base_url}esearch.fcgi?db=pubmed&term={search_term}&retmode=json&retmax={retmax}"
+search_url = (
+    f"{base_url}esearch.fcgi?db=pubmed&term={search_term}&retmode=json&retmax={retmax}"
+)
 
 # Send a GET request to the PubMed API
 response = requests.get(search_url)
@@ -34,7 +36,9 @@ if response.status_code == 200:
     if summary_response.status_code == 200:
         summary_results = summary_response.json()
         # Extract and print the titles
-        with open("./biology_notes/DCM_network_analysis_repo/code/new_papers.csv", "w") as f:
+        with open(
+            "./biology_notes/DCM_network_analysis_repo/code/new_papers.csv", "w"
+        ) as f:
             headings = "Journal, Year, Authors, Title, Paper Ref, Country\n"
             f.write(headings)
         for pmid in pmids:
@@ -46,11 +50,14 @@ if response.status_code == 200:
             # country = summary_results["locationlabel"]
             line = f"{journal}, {year}, {authors}, {title}, {pmid}\n"
 
-            with open("./biology_notes/DCM_network_analysis_repo/code/new_papers.csv", "a") as f:
+            with open(
+                "./biology_notes/DCM_network_analysis_repo/code/new_papers.csv", "a"
+            ) as f:
                 f.write(line)
     else:
-        print(f"Failed to fetch summary details with status code {summary_response.status_code}")
+        print(
+            f"Failed to fetch summary details with status code {summary_response.status_code}"
+        )
 
 else:
     print(f"Request failed with status code {response.status_code}")
-
